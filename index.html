@@ -489,6 +489,16 @@ function testCandleData() {
 
   return generateSMCSignal(candles);
 }
+function runCandleTest() {
+  const output = document.getElementById("smc-test-result");
+
+  try {
+    const result = testCandleData();
+    output.textContent = JSON.stringify(result, null, 2);
+  } catch (error) {
+    output.textContent = "Test error: " + error.message;
+  }
+}
 </script>
 <div class="card">
   <h2>SMC Bot Testing Centre</h2>
