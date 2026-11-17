@@ -434,22 +434,35 @@ function generateSMCSignal(candles) {
 
           if (!entry.confirmed) continue;
 
-          return {
-            signal: direction,
-            status: "POTENTIAL SETUP",
-            entryPrice: candles[m].close,
-            structureLevel: structureLevel,
-            confirmations: [
-              "Liquidity sweep",
-              "CHoCH",
-              "Pullback",
-              "Entry candle confirmation"
-            ],
-            stopLoss: null,
-            takeProfit1: null,
-            takeProfit2: null,
-            takeProfit3: null,
-            reason: "All four detection conditions passed. Risk levels still require calculation."
+          const entryPrice = candles[m].close;
+const sweepCandle = candles[i];
+const buffer = (sweepCandle.high - sweepCandle.low) * 0.1;
+
+const stopLoss = direction === "BUY"
+  ? sweepCandle.low - buffer
+  : sweepCandle.high + buffer;
+
+const risk = Math.abs(entryPrice - stopLoss);
+
+if (risk <= 0) continue;
+
+return {
+  signal: direction,
+  status: "POTENTIAL SETUP — DEMO ONLY",
+  entryPrice: entryPrice,
+  structureLevel: structureLevel,
+  confirmations: [
+    "Liquidity sweep",
+    "CHoCH",
+    "Pullback",
+    "Entry candle confirmation"
+  ],
+  stopLoss: stopLoss,
+  takeProfit1: direction === "BUY" ? entryPrice + risk : entryPrice - risk,
+  takeProfit2: direction === "BUY" ? entryPrice + risk * 2 : entryPrice - risk * 2,
+  takeProfit3: direction === "BUY" ? entryPrice + risk * 3 : entryPrice - risk * 3,
+  reason: "Experimental setup. Demo testing only; not a verified live signal."
+};
           };
         }
       }
