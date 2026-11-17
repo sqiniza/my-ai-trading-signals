@@ -561,12 +561,19 @@ async function analyseSelectedMarket() {
     }
 
     const latest = candles[candles.length - 1];
+    const smc = generateSMCSignal(candles);
 
     output.textContent =
       "Market: " + selectedMarket +
       "\nLatest price: " + latest.close +
       "\nCandles received: " + candles.length +
-      "\nData received successfully. SMC analysis is next.";
+      "\nSMC Signal: " + smc.signal +
+"\nReason: " + (smc.reason || "Setup conditions checked") +
+"\nEntry: " + (smc.entryPrice ?? "Not confirmed") +
+"\nStop Loss: " + (smc.stopLoss ?? "Not calculated") +
+"\nTP1: " + (smc.takeProfit1 ?? "Not calculated") +
+"\nTP2: " + (smc.takeProfit2 ?? "Not calculated") +
+"\nTP3: " + (smc.takeProfit3 ?? "Not calculated");
 
   } catch (error) {
     output.textContent = "Analysis unavailable: " + error.message;
