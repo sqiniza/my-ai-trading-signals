@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090d16">
+<title>My AI Trading Signals</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090d16;color:#f1f5f9;font-family:Arial,sans-serif}
+header{padding:22px 18px;background:#111827;border-bottom:1px solid #293448}
+header h2{margin:0;color:#65a9ff}
+header p{color:#94a3b8;font-size:12px}
+main{padding:17px;max-width:650px;margin:auto}
+h3{margin-top:25px}
+.status{background:#382b12;color:#facc15;padding:9px;border-radius:8px;font-size:12px;text-align:center}
+.markets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.market{background:#151e2d;border:1px solid #293448;border-radius:12px;padding:16px;color:white;text-align:left}
+.market strong{display:block;font-size:17px}
+.market small{color:#94a3b8}
+.market.active{border:1px solid #60a5fa}
+.card{background:#151e2d;border:1px solid #293448;border-radius:13px;padding:17px;margin-top:12px}
+.row{display:flex;justify-content:space-between;margin:12px 0;font-size:14px}
+.muted{color:#94a3b8}
+.buy{color:#4ade80}
+.sell{color:#fb7185}
+button{cursor:pointer}
+.action{background:#2563eb;color:white;border:0;padding:13px;border-radius:9px;width:100%;font-weight:bold}
+input,select,textarea{width:100%;background:#090d16;color:white;border:1px solid #344155;padding:12px;border-radius:8px;margin:7px 0}
+nav{display:flex;gap:8px;margin:20px 0}
+nav button{flex:1;background:#182438;color:white;border:1px solid #344155;padding:12px 5px;border-radius:8px}
+section{display:none}
+section.active{display:block}
+footer{text-align:center;color:#64748b;font-size:11px;padding:30px}
+#preview{max-width:100%;margin-top:12px;border-radius:10px}
+</style>
+</head>
+<body>
+<header>
+<h2>◈ MY AI TRADING</h2>
+<p>YOUR PERSONAL MARKET ANALYST</p>
+</header>
+<main>
+<div class="status">● DEMO MODE — No verified live signals yet</div>
+
+<nav>
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('analysis')">Chart AI</button>
+<button onclick="showPage('risk')">Risk</button>
+</nav>
+
+<section id="dashboard" class="active">
+<h3>Select your market</h3>
+<div class="markets">
+<button class="market active" onclick="selectMarket(this,'XAUUSD')"><strong>XAUUSD</strong><small>Gold</small></button>
+<button class="market" onclick="selectMarket(this,'NAS100')"><strong>NAS100</strong><small>NASDAQ</small></button>
+<button class="market" onclick="selectMarket(this,'US30')"><strong>US30</strong><small>Dow Jones</small></button>
+<button class="market" onclick="selectMarket(this,'BTCUSD')"><strong>BTCUSD</strong><small>Bitcoin</small></button>
+</div>
+
+<h3>Market signal</h3>
+<div class="card">
+<div class="row"><b id="selected">XAUUSD</b><span class="muted">DEMO SIGNAL</span></div>
+<h2 id="direction">NO TRADE</h2>
+<p class="muted">No verified market data connected.</p>
+<div class="row"><span>Entry</span><b>Awaiting data</b></div>
+<div class="row"><span>Stop loss</span><b>Awaiting data</b></div>
+<div class="row"><span>TP1 / TP2 / TP3</span><b>Awaiting data</b></div>
+</div>
+
+<div class="card">
+<h3>Strategy checklist</h3>
+<div class="row"><span>Liquidity sweep</span><b>Not checked</b></div>
+<div class="row"><span>CHoCH / BOS</span><b>Not checked</b></div>
+<div class="row"><span>Pullback</span><b>Not checked</b></div>
+<div class="row"><span>Entry confirmation</span><b>Not checked</b></div>
+</div>
+</section>
+
+<section id="analysis">
+<h3>AI Chart Analysis</h3>
+<p class="muted">Upload a screenshot from your iPhone Photos.</p>
+<input type="file" id="chart" accept="image/*">
+<img id="preview" alt="Chart preview" style="display:none">
+<div class="card">
+<label>Market</label>
+<select id="chartMarket">
+<option>XAUUSD</option><option>NAS100</option>
+<option>US30</option><option>BTCUSD</option>
+</select>
+<label>Timeframe</label>
+<select id="timeframe">
+<option>H1</option><option>M15</option>
+<option>M5</option><option>M1</option>
+</select>
+<label>Your observations (optional)</label>
+<textarea id="notes" rows="3" placeholder="Describe the liquidity sweep, CHoCH or setup you see..."></textarea>
+<button class="action" onclick="analyse()">Prepare chart for analysis</button>
+<p id="analysisResult" class="muted">AI analysis is not connected yet. This version only previews your uploaded chart and records your observations.</p>
+</div>
+</section>
+
+<section id="risk">
+<h3>Risk calculator</h3>
+<div class="card">
+<label>Account balance (R)</label>
+<input id="balance" type="number" value="500">
+<label>Risk percentage</label>
+<input id="riskPercent" type="number" value="1" step="0.1">
+<label>Stop loss distance (points)</label>
+<input id="distance" type="number" value="10">
+<button class="action" onclick="calculate()">Calculate risk</button>
+<h3 id="riskResult">R0.00</h3>
+<p class="muted">This calculates money at risk only. It does not calculate lot size or guarantee a trade's outcome.</p>
+</div>
+</section>
+
+<footer>
+MY AI TRADING SIGNALS · VERSION 1.0<br>
+Educational tool. Always verify market conditions.
+</footer>
+</main>
+<script>
+let currentMarket="XAUUSD";
+
+function showPage(id){
+document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+function selectMarket(button,name){
+currentMarket=name;
+document.querySelectorAll(".market").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+document.getElementById("selected").textContent=name;
+}
+
+document.getElementById("chart").addEventListener("change",function(e){
+const file=e.target.files[0];
+if(!file)return;
+const preview=document.getElementById("preview");
+preview.src=URL.createObjectURL(file);
+preview.style.display="block";
+document.getElementById("analysisResult").textContent="Chart uploaded. AI interpretation is not connected yet.";
+});
+
+function analyse(){
+const market=document.getElementById("chartMarket").value;
+const tf=document.getElementById("timeframe").value;
+const notes=document.getElementById("notes").value;
+document.getElementById("analysisResult").textContent=
+"Chart prepared for "+market+" ("+tf+"). Observations: "+(notes||"None provided")+". No AI analysis has been performed.";
+}
+
+function calculate(){
+const balance=Number(document.getElementById("balance").value);
+const percent=Number(document.getElementById("riskPercent").value);
+const distance=Number(document.getElementById("distance").value);
+if(balance<=0||percent<=0||percent>100||distance<=0){
+document.getElementById("riskResult").textContent="Enter valid values.";
+return;
+}
+document.getElementById("riskResult").textContent=
+"Maximum planned loss: R"+(balance*percent/100).toFixed(2);
+}
+</script>
+</body>
+</html>
