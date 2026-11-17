@@ -530,6 +530,17 @@ async function fetchMarketCandles(symbol, timeframe = "5m") {
       close: Number(bar.close),
       volume: Number(bar.tickVolume || 
     })).reverse();
+let selectedMarket = "XAUUSD";
+
+function selectMarket(button, market) {
+  selectedMarket = market;
+
+  document.querySelectorAll(".market").forEach(item => {
+    item.classList.remove("active");
+  });
+
+  button.classList.add("active");
+}
 </script>
 <div class="card">
   <h2>SMC Bot Testing Centre</h2>
