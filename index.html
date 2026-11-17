@@ -368,6 +368,87 @@ function confirmEntry(candles, direction) {
   };
 }
 
+
+function generateSMCSignal(candles) {
+  if (!Array.isArray(candles) || candles.length < 15) {
+    return {
+      signal: "NO TRADE",
+      reason: "Insufficient candle data"
+    };
+  }
+
+  for (let i = 9; i < candles.length - 3; i++) {
+    const history = candles.slice(0, i + 1);
+
+    const sweep = detectLiquiditySweep(history);
+
+    if (
+      sweep.signal !== "POTENTIAL BUY" &&
+      sweep.signal !== "POTENTIAL SELL"
+    ) continue;
+
+    const direction =
+      sweep.signal === "POTENTIAL BUY" ? "BUY" : "SELL";
+
+    const previous = candles.slice(i - 9, i);
+
+    const structureLevel = direction === "BUY"
+      ? Math.min(...previous.map(c => c.low))
+      : Math.max(...previous.map(c => c.high));
+
+    for (let j = i + 1; j < candles.length - 2; j++) {
+      const choch = detectCHoCH(
+        candles.slice(0, j + 1),
+        direction
+      );
+
+      if (!choch.confirmed) continue;
+
+      for (let k = j + 1; k < candles.length - 1; k++) {
+        const pullback = detectPullback(
+          candles.slice(0, k + 1),
+          direction,
+          structureLevel
+        );
+
+        if (!pullback.confirmed) continue;
+
+        for (let m = k + 1; m < candles.length; m++) {
+          const entry = confirmEntry(
+            candles.slice(0, m + 1),
+            direction
+          );
+
+          if (!entry.confirmed) continue;
+
+          return {
+            signal: direction,
+            status: "POTENTIAL SETUP",
+            entryPrice: candles[m].close,
+            structureLevel: structureLevel,
+            confirmations: [
+              "Liquidity sweep",
+              "CHoCH",
+              "Pullback",
+              "Entry candle confirmation"
+            ],
+            stopLoss: null,
+            takeProfit1: null,
+            takeProfit2: null,
+            takeProfit3: null,
+            reason: "All four detection conditions passed. Risk levels still require calculation."
+          };
+        }
+      }
+    }
+  }
+
+  return {
+    signal: "NO TRADE",
+    reason: "Complete SMC sequence not confirmed"
+  };
+}
+
 </script>
 </body>
 </html>
