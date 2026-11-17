@@ -242,6 +242,69 @@ function detectCHoCH(candles, direction) {
   };
 }
 
+
+function detectPullback(candles, direction, structureLevel) {
+  if (!Array.isArray(candles) || candles.length < 2) {
+    return {
+      confirmed: false,
+      reason: "Not enough candle data"
+    };
+  }
+
+  if (!Number.isFinite(structureLevel)) {
+    return {
+      confirmed: false,
+      reason: "Invalid structure level"
+    };
+  }
+
+  const candle = candles[candles.length - 1];
+
+  const range = candle.high - candle.low;
+
+  if (range <= 0) {
+    return {
+      confirmed: false,
+      reason: "Invalid candle range"
+    };
+  }
+
+  const tolerance = range * 0.20;
+
+  if (direction === "BUY") {
+    const touched = candle.low <= structureLevel + tolerance;
+    const held = candle.close > structureLevel;
+
+    if (touched && held) {
+      return {
+        confirmed: true,
+        direction: "BUY",
+        level: structureLevel,
+        reason: "Bullish pullback and rejection"
+      };
+    }
+  }
+
+  if (direction === "SELL") {
+    const touched = candle.high >= structureLevel - tolerance;
+    const held = candle.close < structureLevel;
+
+    if (touched && held) {
+      return {
+        confirmed: true,
+        direction: "SELL",
+        level: structureLevel,
+        reason: "Bearish pullback and rejection"
+      };
+    }
+  }
+
+  return {
+    confirmed: false,
+    reason: "No qualifying pullback"
+  };
+}
+
 </script>
 </body>
 </html>
