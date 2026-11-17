@@ -497,6 +497,33 @@ function runCandleTest() {
     output.textContent = "Test error: " + error.message;
   }
 }
+async function fetchMarketCandles(symbol, timeframe = "5m") {
+  const url =
+    `https://biquote.io/api/${encodeURIComponent(symbol)}/ohlc?interval=${timeframe}&limit=200`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Market data unavailable: " + response.status);
+  }
+
+  const data = await response.json();
+
+  if (!data.bars || !Array.isArray(data.bars)) {
+    throw new Error("Invalid candle data received.");
+  }
+
+  return data.bars
+    .filter(bar => !bar.isOpen)
+    .map(bar => ({
+      time: bar.openTime,
+      open: Number(bar.open),
+      high: Number(bar.high),
+      low: Number(bar.low),
+      close: Number(bar.close),
+      volume: Number(bar.tickVolume || 0)
+    }));
+}
 </script>
 <div class="card">
   <h2>SMC Bot Testing Centre</h2>
