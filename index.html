@@ -164,6 +164,47 @@ return;
 document.getElementById("riskResult").textContent=
 "Maximum planned loss: R"+(balance*percent/100).toFixed(2);
 }
+
+function detectLiquiditySweep(candles) {
+  if (!Array.isArray(candles) || candles.length < 10) {
+    return {
+      signal: "NO TRADE",
+      reason: "Not enough candle data"
+    };
+  }
+
+  const recent = candles[candles.length - 1];
+  const previous = candles.slice(-10, -1);
+
+  const previousHigh = Math.max(...previous.map(c => c.high));
+  const previousLow = Math.min(...previous.map(c => c.low));
+
+  if (
+    recent.low < previousLow &&
+    recent.close > previousLow
+  ) {
+    return {
+      signal: "POTENTIAL BUY",
+      reason: "Bullish liquidity sweep detected"
+    };
+  }
+
+  if (
+    recent.high > previousHigh &&
+    recent.close < previousHigh
+  ) {
+    return {
+      signal: "POTENTIAL SELL",
+      reason: "Bearish liquidity sweep detected"
+    };
+  }
+
+  return {
+    signal: "NO TRADE",
+    reason: "No liquidity sweep detected"
+  };
+}
+
 </script>
 </body>
 </html>
