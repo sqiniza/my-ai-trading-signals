@@ -449,6 +449,17 @@ function generateSMCSignal(candles) {
   };
 }
 
+function runSMCTest() {
+  const output = document.getElementById("smc-test-result");
+
+  if (typeof generateSMCSignal !== "function") {
+    output.textContent = "Error: SMC engine not found.";
+    return;
+  }
+
+  output.textContent =
+    "Engine found. The testing panel is connected, but we still need to test it with candle data.";
+}
 </script>
 </body>
 </html>
