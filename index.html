@@ -547,6 +547,30 @@ function selectMarket(button, market) {
 
   button.classList.add("active");
 }
+async function analyseSelectedMarket() {
+  const output = document.getElementById("live-analysis-result");
+
+  output.textContent = "Fetching live market data...";
+
+  try {
+    const candles = await fetchMarketCandles(selectedMarket, "5m");
+
+    if (!candles || candles.length < 30) {
+      throw new Error("Not enough market candles.");
+    }
+
+    const latest = candles[candles.length - 1];
+
+    output.textContent =
+      "Market: " + selectedMarket +
+      "\nLatest price: " + latest.close +
+      "\nCandles received: " + candles.length +
+      "\nData received successfully. SMC analysis is next.";
+
+  } catch (error) {
+    output.textContent = "Analysis unavailable: " + error.message;
+  }
+}
 </script>
 <div class="card">
   <h2>SMC Bot Testing Centre</h2>
