@@ -382,12 +382,91 @@ function confirmEntry(candles, direction) {
 }
 
 
+
 function generateSMCSignal(candles) {
-  if (!Array.isArray(candles) || candles.length < 15) {
+  if (!Array.isArray(candles) || candles.length < 20) {
     return {
       signal: "NO TRADE",
       reason: "Insufficient candle data"
     };
+  }
+
+  const entryIndex = candles.length - 1;
+  const entryPrice = candles[entryIndex].close;
+
+  // Only inspect recent completed candles
+  const recent = candles.slice(-20, -1);
+
+  const sweep = detectLiquiditySweep(recent);
+
+  if (
+    sweep.signal !== "POTENTIAL BUY" &&
+    sweep.signal !== "POTENTIAL SELL"
+  ) {
+    return {
+      signal: "NO TRADE",
+      reason: "No recent liquidity sweep confirmed"
+    };
+  }
+
+  const direction =
+    sweep.signal === "POTENTIAL BUY" ? "BUY" : "SELL";
+
+  const structureLevel =
+    direction === "BUY"
+      ? Math.min(...recent.slice(-10).map(c => c.low))
+      : Math.max(...recent.slice(-10).map(c => c.high));
+
+  const choch = detectCHoCH(candles, direction);
+  const pullback = detectPullback(candles, direction, structureLevel);
+  const confirmation = confirmEntry(candles, direction);
+
+  if (!choch.confirmed || !pullback.confirmed || !confirmation.confirmed) {
+    return {
+      signal: "NO TRADE",
+      reason: "Full SMC sequence not confirmed"
+    };
+  }
+
+  const sweepCandle = recent[recent.length - 1];
+  const buffer = (sweepCandle.high - sweepCandle.low) * 0.1;
+
+  const stopLoss =
+    direction === "BUY"
+      ? sweepCandle.low - buffer
+      : sweepCandle.high + buffer;
+
+  const risk = Math.abs(entryPrice - stopLoss);
+
+  if (
+    risk <= 0 ||
+    (direction === "BUY" && stopLoss >= entryPrice) ||
+    (direction === "SELL" && stopLoss <= entryPrice)
+  ) {
+    return {
+      signal: "NO TRADE",
+      reason: "Invalid stop loss position"
+    };
+  }
+
+  return {
+    signal: direction,
+    status: "POTENTIAL SETUP — DEMO ONLY",
+    entryPrice: entryPrice,
+    stopLoss: stopLoss,
+    takeProfit1: direction === "BUY"
+      ? entryPrice + risk
+      : entryPrice - risk,
+    takeProfit2: direction === "BUY"
+      ? entryPrice + risk * 2
+      : entryPrice - risk * 2,
+    takeProfit3: direction === "BUY"
+      ? entryPrice + risk * 3
+      : entryPrice - risk * 3,
+    reason: "Experimental setup. Demo testing only."
+  };
+}
+
   }
 
   for (let i = 9; i < candles.length - 3; i++) {
