@@ -305,6 +305,69 @@ function detectPullback(candles, direction, structureLevel) {
   };
 }
 
+
+function confirmEntry(candles, direction) {
+  if (!Array.isArray(candles) || candles.length < 2) {
+    return {
+      confirmed: false,
+      reason: "Not enough candle data"
+    };
+  }
+
+  const candle = candles[candles.length - 1];
+
+  const body = Math.abs(candle.close - candle.open);
+  const range = candle.high - candle.low;
+
+  if (range <= 0) {
+    return {
+      confirmed: false,
+      reason: "Invalid candle"
+    };
+  }
+
+  const upperWick = candle.high -
+    Math.max(candle.open, candle.close);
+
+  const lowerWick = Math.min(candle.open, candle.close) -
+    candle.low;
+
+  if (direction === "BUY") {
+    const bullishCandle = candle.close > candle.open;
+    const strongClose = candle.close >=
+      candle.low + range * 0.65;
+    const rejection = lowerWick > body;
+
+    if (bullishCandle && strongClose && rejection) {
+      return {
+        confirmed: true,
+        direction: "BUY",
+        reason: "Bullish rejection candle confirmed"
+      };
+    }
+  }
+
+  if (direction === "SELL") {
+    const bearishCandle = candle.close < candle.open;
+    const strongClose = candle.close <=
+      candle.low + range * 0.35;
+    const rejection = upperWick > body;
+
+    if (bearishCandle && strongClose && rejection) {
+      return {
+        confirmed: true,
+        direction: "SELL",
+        reason: "Bearish rejection candle confirmed"
+      };
+    }
+  }
+
+  return {
+    confirmed: false,
+    reason: "No valid entry candle"
+  };
+}
+
 </script>
 </body>
 </html>
