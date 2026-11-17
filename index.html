@@ -521,9 +521,8 @@ async function fetchMarketCandles(symbol, timeframe = "5m") {
       high: Number(bar.high),
       low: Number(bar.low),
       close: Number(bar.close),
-      volume: Number(bar.tickVolume || 0)
-    }));
-}
+      volume: Number(bar.tickVolume || 
+    })).reverse();
 </script>
 <div class="card">
   <h2>SMC Bot Testing Centre</h2>
