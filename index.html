@@ -528,7 +528,7 @@ async function fetchMarketCandles(symbol, timeframe = "5m") {
       high: Number(bar.high),
       low: Number(bar.low),
       close: Number(bar.close),
-      volume: Number(bar.tickVolume || 
+      volume: Number(bar.tickVolume || 0)
     })).reverse();
 let selectedMarket = "XAUUSD";
 
