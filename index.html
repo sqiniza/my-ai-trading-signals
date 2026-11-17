@@ -205,6 +205,43 @@ function detectLiquiditySweep(candles) {
   };
 }
 
+
+function detectCHoCH(candles, direction) {
+  if (!Array.isArray(candles) || candles.length < 12) {
+    return {
+      confirmed: false,
+      reason: "Not enough candle data"
+    };
+  }
+
+  const recent = candles[candles.length - 1];
+  const structure = candles.slice(-12, -1);
+
+  const previousHigh = Math.max(...structure.map(c => c.high));
+  const previousLow = Math.min(...structure.map(c => c.low));
+
+  if (direction === "BUY" && recent.close > previousHigh) {
+    return {
+      confirmed: true,
+      direction: "BUY",
+      reason: "Bullish structure break"
+    };
+  }
+
+  if (direction === "SELL" && recent.close < previousLow) {
+    return {
+      confirmed: true,
+      direction: "SELL",
+      reason: "Bearish structure break"
+    };
+  }
+
+  return {
+    confirmed: false,
+    reason: "No qualifying structure break"
+  };
+}
+
 </script>
 </body>
 </html>
